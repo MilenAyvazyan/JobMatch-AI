@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recommendations | JobMatch AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0a0e1a; --surface: #111827; --surface2: #162032;
+            --border: #1e2d45; --accent: #3b82f6; --accent2: #06b6d4;
+            --gold: #f59e0b; --text: #e2e8f0; --muted: #64748b; --success: #34d399;
+        }
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+        }
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none;
+        }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10,14,26,0.85); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px;
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .nav-logo-icon {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .nav-logo-text {
+            font-size: 17px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-greeting { font-size: 14px; color: var(--muted); }
+        .nav-greeting span { color: var(--accent2); font-weight: 600; }
+        .nav-btn {
+            padding: 8px 18px; border-radius: 8px;
+            font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .nav-btn-ghost { background: none; border: 1px solid var(--border); color: var(--muted); }
+        .nav-btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+        .live-dot {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--success); font-weight: 600;
+        }
+        .live-dot::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--success); animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .hero { text-align: center; padding: 60px 20px 40px; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25);
+            color: var(--gold); padding: 6px 16px; border-radius: 100px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 20px;
+        }
+        .hero h1 { font-size: 36px; font-weight: 700; margin-bottom: 12px; }
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--gold), #f97316);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .based-on { max-width: 700px; margin: 0 auto 32px; padding: 0 20px; }
+        .based-on-box {
+            background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 12px; padding: 14px 20px;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 14px; color: var(--muted);
+        }
+        .based-on-box strong { color: var(--accent); }
+        .jobs-container { max-width: 700px; margin: 0 auto; padding: 0 20px 60px; }
+        .section-label {
+            font-size: 12px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--muted); margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .job-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px; margin-bottom: 16px;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            animation: fadeIn 0.4s ease forwards; opacity: 0;
+            position: relative; overflow: hidden;
+        }
+        .job-card:nth-child(1){animation-delay:0.05s}
+        .job-card:nth-child(2){animation-delay:0.1s}
+        .job-card:nth-child(3){animation-delay:0.15s}
+        .job-card:first-child::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 2px; background: linear-gradient(90deg, var(--gold), #f97316);
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .job-card:hover {
+            border-color: rgba(59,130,246,0.35); transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .card-top {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 12px; margin-bottom: 16px;
+        }
+        .job-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+        .job-company { font-size: 14px; color: var(--accent2); font-weight: 600; }
+        .score-badge {
+            display: flex; flex-direction: column; align-items: center;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 8px 14px; min-width: 70px; flex-shrink: 0;
+        }
+        .score-num { font-size: 18px; font-weight: 700; color: var(--success); line-height: 1; }
+        .score-label {
+            font-size: 10px; color: var(--muted); font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px;
+        }
+        .skills-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-tag {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--muted); padding: 5px 12px; border-radius: 6px;
+            font-size: 12px; font-weight: 500;
+        }
+        .empty {
+            text-align: center; padding: 80px 20px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty h3 { font-size: 20px; margin-bottom: 8px; }
+        .empty p { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+        .empty-btn {
+            display: inline-block; padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: white; text-decoration: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; transition: opacity 0.2s;
+        }
+        .empty-btn:hover { opacity: 0.85; }
+        .back-row { text-align: center; margin-top: 8px; }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 24px; background: var(--surface2);
+            border: 1px solid var(--border); color: var(--muted);
+            text-decoration: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; transition: all 0.2s;
+        }
+        .back-link:hover { color: var(--text); border-color: var(--accent); }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-logo">
+            <div class="nav-logo-icon">💼</div>
+            <span class="nav-logo-text">JobMatch AI</span>
+        </a>
+        <div class="nav-right">
+            <span class="nav-greeting">Hello, <span>{{ username }}</span></span>
+            <span class="live-dot">Live AI</span>
+            <a href="/logout" class="nav-btn nav-btn-ghost">Sign Out</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-badge">⭐ AI Recommendations</div>
+        <h1>Your <span>Top Matches</span></h1>
+    </div>
+
+    {% if based_on %}
+    <div class="based-on">
+        <div class="based-on-box">
+            <span></span>
+            <span>Recommendations based on your interest in <strong>{{ based_on }}</strong></span>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="jobs-container">
+        {% if recommended_jobs %}
+            <div class="section-label">Best Matches for You</div>
+            {% for job in recommended_jobs %}
+            <div class="job-card">
+                <div class="card-top">
+                    <div>
+                        <div class="job-title">{{ job.title }}</div>
+                        <div class="job-company">{{ job.company }}</div>
+                    </div>
+                    {% if job.score %}
+                    <div class="score-badge">
+                        <span class="score-num">{{ "%.0f"|format(job.score * 100) }}%</span>
+                        <span class="score-label">Match</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="skills-row">
+                    {% for skill in job.skills.split() %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <div class="back-row">
+                <a href="/" class="back-link">← Browse More Jobs</a>
+            </div>
+        {% else %}
+            <div class="empty">
+                <div class="empty-icon">🤖</div>
+                <h3>No Recommendations Yet</h3>
+                <p>Click "I'm Interested" on any job to train your AI engine</p>
+                <a href="/" class="empty-btn">Browse Jobs</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function checkUpdates() {
+            fetch('/get_recommendations_json')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.recommended_jobs && data.recommended_jobs.length > 0) {
+                        window.location.reload();
+                    }
+                })
+                .catch(() => {});
+        }
+        setInterval(checkUpdates, 5000);
+    </script>
+</body>
+</html>
